@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 import pool from './config/db.js';
 import routes from './routes/index.js';
 import { swaggerUi, swaggerSpec } from './swagger.js';
-import ejeRoutes from './routes/ejeRoutes.js';
 
 dotenv.config();
 
@@ -14,7 +13,8 @@ const app = express();
 // Middleware
 // Middleware CORS seguro
 const allowedOrigins = [
-  'http://localhost:3000', 
+  'http://localhost:3000',
+  'http://localhost:3001',
   'http://localhost:5173',
   'http://localhost:5174'
 ];
