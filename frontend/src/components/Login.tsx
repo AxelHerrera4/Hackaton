@@ -1,0 +1,101 @@
+import { useState } from 'react'
+import { authService, LoginResponse } from '../services/authService'
+import { User } from '../App'
+import logoImage from '../assets/images.png'
+
+interface LoginProps {
+  onLogin: (user: User, token: string) => void;
+}
+
+export default function Login({ onLogin }: LoginProps) {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    try {
+      const response: LoginResponse = await authService.login(email, password)
+      
+      // Mapear la respuesta al tipo User esperado
+      const user: User = {
+        id: response.user.id,
+        email: response.user.email,
+        fullName: response.user.nombre,
+        role: response.user.role === 'admin' ? 'admin' : 'lider'
+      }
+      
+      onLogin(user, response.access_token)
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Error al iniciar sesión')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="login-container">
+      <div className="login-card">
+        <div className="logo-container">
+          <img 
+            src={logoImage} 
+            alt="Fundación Favorita" 
+            className="login-logo"
+          />
+        </div>
+        <h1 className="login-title">Fundación Favorita</h1>
+        <p className="login-subtitle">Sistema de Gestión de Reportes</p>
+        <p className="text-center text-gray mb-4">Sistema de Gestión de ONGs</p>
+        
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Email</label>
+            <input
+              type="email"
+              className="form-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="admin@favorita.com"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Contraseña</label>
+            <input
+              type="password"
+              className="form-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="password"
+            />
+          </div>
+
+          {error && (
+            <div className="text-red text-center mb-4">{error}</div>
+          )}
+
+          <button
+            type="submit"
+            className="btn btn-primary w-full"
+            disabled={loading}
+          >
+            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+          </button>
+        </form>
+
+        <div className="mt-4 text-center text-sm text-gray">
+          <p><strong>Credenciales de demo:</strong></p>
+          <p>Admin: admin@favorita.com / 12345678</p>
+          <p>Fundación: fundacion@esperanza.org / 12345678</p>
+          <p>Fundación: contacto@verde.org / 12345678</p>
+        </div>
+      </div>
+    </div>
+  )
+}
