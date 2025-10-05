@@ -85,7 +85,7 @@ services:
     depends_on:
       - postgres
     ports:
-      - "3001:3000"
+      - "3030:3000"
     volumes:
       - metabase_data:/metabase-data
     networks:
