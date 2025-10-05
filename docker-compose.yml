@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: favorita
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - favorita-network
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql://postgres:12345678@postgres:5432/favorita
+      JWT_SECRET: your-secret-key-here
+      PLUX_CLIENT_ID: uj8Yic1a8MbQTdZ0W1yXk524QP
+      PLUX_SECRET_KEY: 7nG9a6srN5sOHHngRekJo1pkxS4cnxEVvc0xnsAVPfJmE8Kq
+      PLUX_BUSINESS_ID: "921"
+      PLUX_RUC: "1792236894001"
+      PLUX_EMAIL: correoplux@gmail.com
+      N8N_WEBHOOK_URL: http://n8n:5678
+      PORT: 3001
+    depends_on:
+      - postgres
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - favorita-network
+
+  frontend:
+    build: ./frontend
+    environment:
+      REACT_APP_API_URL: http://localhost:3001
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - favorita-network
+
+  n8n:
+    image: n8nio/n8n
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: favorita
+      DB_POSTGRESDB_USER: postgres
+      DB_POSTGRESDB_PASSWORD: 12345678
+      N8N_BASIC_AUTH_ACTIVE: true
+      N8N_BASIC_AUTH_USER: admin
+      N8N_BASIC_AUTH_PASSWORD: admin123
+      WEBHOOK_URL: http://localhost:5678
+    depends_on:
+      - postgres
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - favorita-network
+
+  metabase:
+    image: metabase/metabase:latest
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: favorita
+      MB_DB_PORT: 5432
+      MB_DB_USER: postgres
+      MB_DB_PASS: 12345678
+      MB_DB_HOST: postgres
+    depends_on:
+      - postgres
+    ports:
+      - "3001:3000"
+    volumes:
+      - metabase_data:/metabase-data
+    networks:
+      - favorita-network
+
+volumes:
+  postgres_data:
+  n8n_data:
+  metabase_data:
+
+networks:
+  favorita-network:
+    driver: bridge
