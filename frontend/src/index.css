@@ -207,6 +207,19 @@ body {
   font-size: 1rem;
   background-color: white;
   cursor: pointer;
+  color: #000;
+}
+
+.form-select option {
+  color: #000;
+  background-color: white;
+  padding: 0.5rem;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: var(--ff-primary-color);
+  box-shadow: 0 0 0 3px rgba(233, 30, 37, 0.1);
 }
 
 /* Navigation con estilo Fundación Favorita */
@@ -383,6 +396,12 @@ body {
   padding: 1rem 0.75rem;
   text-align: left;
   border-bottom: 1px solid #f0f0f0;
+  color: #000;
+}
+
+.table tbody td {
+  color: #212121;
+  background-color: white;
 }
 
 .table th {
