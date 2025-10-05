@@ -1,5 +1,6 @@
 import { User } from '../App'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import CreateReport from './CreateReport'
 import ReportsList from './ReportsList'
 import PaymentsList from './PaymentsList'
@@ -13,7 +14,9 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ user }: DashboardProps) {
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('overview')
+  const [showFormularios, setShowFormularios] = useState(false)
 
   const renderAdminDashboard = () => (
     <div>
@@ -32,6 +35,76 @@ export default function Dashboard({ user }: DashboardProps) {
       </div>
       
       <h2 className="text-2xl font-bold mb-4">Panel de Administrador</h2>
+
+      {/* Botón desplegable de formularios */}
+      <div className="mb-6">
+        <button
+          onClick={() => setShowFormularios(!showFormularios)}
+          className="btn btn-primary flex items-center gap-2"
+        >
+          📋 Gestionar Formularios
+          <svg
+            className={`w-4 h-4 transition-transform ${showFormularios ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {/* Menú desplegable */}
+        {showFormularios && (
+          <div className="mt-3 card p-4 bg-white shadow-lg">
+            <h3 className="font-semibold mb-3 text-gray-700">Selecciona una opción:</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <button
+                onClick={() => navigate('/admin/ejes/nuevo')}
+                className="btn btn-outline text-left flex items-center gap-3 p-4 hover:bg-blue-50"
+              >
+                <span className="text-2xl">🎯</span>
+                <div>
+                  <div className="font-semibold">Crear Eje</div>
+                  <div className="text-sm text-gray-500">Agregar nuevo eje temático</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => navigate('/admin/indicadores/nuevo')}
+                className="btn btn-outline text-left flex items-center gap-3 p-4 hover:bg-blue-50"
+              >
+                <span className="text-2xl">📊</span>
+                <div>
+                  <div className="font-semibold">Crear Indicador</div>
+                  <div className="text-sm text-gray-500">Agregar nuevo indicador</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => navigate('/admin/ejes')}
+                className="btn btn-outline text-left flex items-center gap-3 p-4 hover:bg-green-50"
+              >
+                <span className="text-2xl">📋</span>
+                <div>
+                  <div className="font-semibold">Ver Ejes</div>
+                  <div className="text-sm text-gray-500">Lista de ejes registrados</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => navigate('/admin/indicadores')}
+                className="btn btn-outline text-left flex items-center gap-3 p-4 hover:bg-green-50"
+              >
+                <span className="text-2xl">📈</span>
+                <div>
+                  <div className="font-semibold">Ver Indicadores</div>
+                  <div className="text-sm text-gray-500">Lista de indicadores registrados</div>
+                </div>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
       
       <div className="nav-tabs">
         <button 

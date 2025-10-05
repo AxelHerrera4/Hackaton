@@ -1,4 +1,4 @@
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://localhost:3001/api';
 export interface Indicador {
   INDICADORES_ID: number;
   EJES_ID: number;
@@ -72,6 +72,42 @@ const indicadoresHardcoded: Indicador[] = [
       EJES_NOMBRE: 'Educación',
       EJES_DESCRIPCION: 'Eje centrado en mejorar el acceso y calidad educativa'
     }
+  },
+  {
+    INDICADORES_ID: 6,
+    EJES_ID: 3,
+    INDICADORES_NOMBRE: 'Emprendimientos apoyados (#)',
+    INDICADORES_DESCRIPCION: 'Número de emprendimientos que reciben apoyo y mentoría',
+    INDICADORES_VALOR: '45',
+    eje: {
+      EJES_ID: 3,
+      EJES_NOMBRE: 'Emprendimiento',
+      EJES_DESCRIPCION: 'Eje destinado a fomentar el emprendimiento y desarrollo económico'
+    }
+  },
+  {
+    INDICADORES_ID: 7,
+    EJES_ID: 4,
+    INDICADORES_NOMBRE: 'Iniciativas ambientales (#)',
+    INDICADORES_DESCRIPCION: 'Número de proyectos enfocados en la conservación ambiental',
+    INDICADORES_VALOR: '15',
+    eje: {
+      EJES_ID: 4,
+      EJES_NOMBRE: 'Medio Ambiente',
+      EJES_DESCRIPCION: 'Eje enfocado en la conservación y protección ambiental'
+    }
+  },
+  {
+    INDICADORES_ID: 8,
+    EJES_ID: 8,
+    INDICADORES_NOMBRE: 'Capacitaciones económicas (#)',
+    INDICADORES_DESCRIPCION: 'Número de capacitaciones en temas de desarrollo económico',
+    INDICADORES_VALOR: '30',
+    eje: {
+      EJES_ID: 8,
+      EJES_NOMBRE: 'Economía',
+      EJES_DESCRIPCION: 'Eje enfocado en fortalecer las capacidades económicas de las comunidades'
+    }
   }
 ];
 class IndicadoresService {
@@ -80,25 +116,25 @@ class IndicadoresService {
     const headers: { [key: string]: string } = {
       'Content-Type': 'application/json'
     };
-    // Solo agregar Authorization si el token existe y no está vacío
-    if (token && token.trim() !== '' && token !== 'null' && token !== 'undefined') {
-      headers['Authorization'] = `Bearer ${token}`;
+    
+    if (!token) {
+      console.error('⚠️ No hay token de autenticación');
+      throw new Error('No hay token de autenticación. Por favor inicie sesión nuevamente.');
     }
+
+    if (token.trim() === '' || token === 'null' || token === 'undefined') {
+      console.error('⚠️ Token inválido');
+      localStorage.removeItem('token'); // Limpiar token inválido
+      throw new Error('Token de autenticación inválido. Por favor inicie sesión nuevamente.');
+    }
+
+    headers['Authorization'] = `Bearer ${token}`;
     return headers;
   }
   async getAllIndicadores(): Promise<Indicador[]> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/indicadores`, {
-        headers: this.getAuthHeaders()
-      });
-      if (!response.ok) {
-        throw new Error('Backend not available');
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      return indicadoresHardcoded;
-    }
+    // Usando datos hardcoded temporalmente
+    console.log('📥 Usando datos hardcoded de indicadores');
+    return Promise.resolve(indicadoresHardcoded);
   }
   async getIndicadorById(id: number): Promise<Indicador[]> {
     try {

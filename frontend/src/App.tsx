@@ -1,9 +1,14 @@
+
 import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from './components/Login'
 import Dashboard from './components/Dashboard'
 import AdminPanel from './components/AdminPanel'
 import FoundationOnboarding from './components/FoundationOnboarding'
+import EjesForm from './components/EjesForm'
+import EjesList from './components/EjesList'
+import IndicadoresForm from './components/IndicadoresForm'
+import IndicadoresList from './components/IndicadoresList'
 import { authService } from './services/authService'
 import { cleanAuthStorage } from './utils/authCleanup'
 import logoImage from './assets/images.png'
@@ -95,7 +100,13 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard user={user} />} />
           {user.role === 'admin' && (
-            <Route path="/admin" element={<AdminPanel />} />
+            <>
+              <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/admin/ejes" element={<EjesList />} />
+              <Route path="/admin/ejes/nuevo" element={<EjesForm />} />
+              <Route path="/admin/indicadores" element={<IndicadoresList />} />
+              <Route path="/admin/indicadores/nuevo" element={<IndicadoresForm />} />
+            </>
           )}
           {user.role === 'lider' && (
             <Route path="/onboarding" element={<FoundationOnboarding user={user} />} />

@@ -1,4 +1,4 @@
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://localhost:3001/api';
 
 export interface Eje {
   EJES_ID: number;
@@ -37,6 +37,11 @@ const ejesHardcoded: Eje[] = [
     EJES_ID: 7,
     EJES_NOMBRE: 'Educación - Equidad de Género',
     EJES_DESCRIPCION: 'Eje enfocado en promover la formación educativa con enfoque de equidad e inclusión de género'
+  },
+  {
+    EJES_ID: 8,
+    EJES_NOMBRE: 'Economía',
+    EJES_DESCRIPCION: 'Eje enfocado en fortalecer las capacidades económicas de las comunidades'
   }
 ];
 
@@ -47,31 +52,25 @@ class EjesService {
       'Content-Type': 'application/json'
     };
     
-    // Solo agregar Authorization si el token existe y no está vacío
-    if (token && token.trim() !== '' && token !== 'null' && token !== 'undefined') {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (!token) {
+      console.error('⚠️ No hay token de autenticación');
+      throw new Error('No hay token de autenticación. Por favor inicie sesión nuevamente.');
     }
-    
+
+    if (token.trim() === '' || token === 'null' || token === 'undefined') {
+      console.error('⚠️ Token inválido');
+      localStorage.removeItem('token'); // Limpiar token inválido
+      throw new Error('Token de autenticación inválido. Por favor inicie sesión nuevamente.');
+    }
+
+    headers['Authorization'] = `Bearer ${token}`;
     return headers;
   }
 
   async getAllEjes(): Promise<Eje[]> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/eje`, {
-        headers: this.getAuthHeaders()
-      });
-      
-      if (!response.ok) {
-        throw new Error('Backend not available');
-      }
-      
-      const data = await response.json();
-      console.log('Loaded ejes from backend:', data.length);
-      return data;
-    } catch (error) {
-      console.log('Using hardcoded data for ejes');
-      return ejesHardcoded;
-    }
+    // Usando datos hardcoded temporalmente
+    console.log('📥 Usando datos hardcoded');
+    return Promise.resolve(ejesHardcoded);
   }
 
   async getEjeById(id: number): Promise<Eje[]> {
