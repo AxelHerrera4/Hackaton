@@ -1,4 +1,4 @@
-﻿import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
 const swaggerOptions = {
@@ -7,7 +7,7 @@ const swaggerOptions = {
     info: {
       title: 'PEFAST API',
       version: '1.0.0',
-      description: 'Documentaci├│n de la API para gesti├│n de Socias',
+      description: 'Documentación de la API para gestión de Socias',
     },
     servers: [
       {

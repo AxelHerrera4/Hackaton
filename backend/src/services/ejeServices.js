@@ -1,15 +1,15 @@
-﻿import { EjesRepository } from '../repositories/ejeRepository.js';
+import { EjesRepository } from '../repositories/ejeRepository.js';
 import { Validaciones } from '../utils/validaciones.js';
 
 const ejesRepo = new EjesRepository();
 
 export class EjesService {
   
-  // M├®todo para crear un eje
+  // Método para crear un eje
   async createEje(data) {
     // Validaciones obligatorias
     if (!data.EJES_NOMBRE || !data.EJES_DESCRIPCION) {
-      throw new Error("El nombre y la descripci├│n son obligatorios");
+      throw new Error("El nombre y la descripción son obligatorios");
     }
 
     if (!Validaciones.soloLetras(data.EJES_NOMBRE)) {
@@ -17,10 +17,10 @@ export class EjesService {
     }
 
     if (!Validaciones.soloLetras(data.EJES_DESCRIPCION)) {
-      throw new Error("La descripci├│n solo puede contener letras");
+      throw new Error("La descripción solo puede contener letras");
     }
 
-    // Convertir a may├║sculas antes de guardar
+    // Convertir a mayúsculas antes de guardar
     const ejeNombre = Validaciones.convertirAMayusculas(data.EJES_NOMBRE);
 
     const newData = {
@@ -33,7 +33,7 @@ export class EjesService {
     return newEje;
   }
 
-  // M├®todo para actualizar un eje
+  // Método para actualizar un eje
   async actualizarEje(data) {
     if (!data.EJES_ID) {
       throw new Error("El ID del eje es obligatorio");
@@ -44,7 +44,7 @@ export class EjesService {
     }
 
     if (!Validaciones.soloLetras(data.EJES_DESCRIPCION)) {
-      throw new Error("La descripci├│n solo puede contener letras");
+      throw new Error("La descripción solo puede contener letras");
     }
 
     const ejeNombre = Validaciones.convertirAMayusculas(data.EJES_NOMBRE);
@@ -56,33 +56,33 @@ export class EjesService {
     });
 
     if (!actualizado) {
-      throw new Error("No se encontr├│ el eje para actualizar");
+      throw new Error("No se encontró el eje para actualizar");
     }
 
     return await ejesRepo.buscarPorId(data.EJES_ID);
   }
 
-  // M├®todo para listar todos los ejes
+  // Método para listar todos los ejes
   async obtenerTodosLosEjes() {
     return await ejesRepo.listarTodos();
   }
 
-  // M├®todo para buscar por nombre
+  // Método para buscar por nombre
   async obtenerEjePorNombre(nombre) {
     return await ejesRepo.buscarPorNombre(nombre);
   }
 
-  // M├®todo para eliminar un eje
+  // Método para eliminar un eje
   async eliminarEje(id) {
     return await ejesRepo.eliminar(id);
   }
 
-  // M├®todo para buscar por ID
+  // Método para buscar por ID
   async obtenerEjePorId(id) {
     return await ejesRepo.buscarPorId(id);
   }
 
-  // M├®todos de ordenamiento (si los agregas en el repositorio)
+  // Métodos de ordenamiento (si los agregas en el repositorio)
   async obtenerEjesOrdenDesc() {
     return await ejesRepo.ordenarDescendente();
   }

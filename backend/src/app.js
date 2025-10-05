@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
@@ -33,37 +33,36 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Eliminar encabezado 'X-Powered-By' para no divulgar versi├│n de Express
+// Eliminar encabezado 'X-Powered-By' para no divulgar versión de Express
 app.disable('x-powered-by');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Middleware para verificar conexi├│n a la base de datos
+// Middleware para verificar conexión a la base de datos
 app.use(async (req, res, next) => {
   try {
     await pool.query('SELECT 1');
     next();
   } catch (error) {
-    console.error('Error de conexi├│n a DB:', error);
-    res.status(500).json({ error: 'Error de conexi├│n a base de datos' });
+    console.error('Error de conexión a DB:', error);
+    res.status(500).json({ error: 'Error de conexión a base de datos' });
   }
 });
 
 // Rutas
 app.use('/api', routes);
 
-// Rutas de inventario
-app.use('/eje', ejeRoutes);
 
 
 
-// Documentaci├│n Swagger
+
+// Documentación Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Ruta base
 app.get('/', (req, res) => {
-  res.send('Backend de gesti├│n de socias PEFAST activo');
+  res.send('Backend de gestión de socias PEFAST activo');
 });
 
 // Middleware 404

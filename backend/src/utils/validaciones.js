@@ -1,7 +1,7 @@
-﻿export class Validaciones {
-  // Valida que el texto tenga letras, espacios, acentos, puntos, comas y signos b├ísicos
+export class Validaciones {
+  // Valida que el texto tenga letras, espacios, acentos, puntos, comas y signos básicos
   static soloLetras(texto) {
-    const regex = /^[A-Za-z├ü├ë├ì├ô├Ü├í├®├¡├│├║├æ├▒\s.,;:()\-┬í!┬┐?"']+$/;
+    const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s.,;:()\-¡!¿?"']+$/;
     return regex.test(texto);
   }
 static convertirAMayusculas(texto) {
@@ -9,17 +9,17 @@ static convertirAMayusculas(texto) {
   return texto.toString().toUpperCase();
 }
 
-  // Valida que el texto solo tenga n├║meros
+  // Valida que el texto solo tenga números
   static soloNumeros(texto) {
     const regex = /^[0-9]+$/;
     return regex.test(texto);
   }
 
-  // Validadores espec├¡ficos para inventario
-  // Nombre de producto: permite letras, n├║meros, espacios y algunos signos b├ísicos
+  // Validadores específicos para inventario
+  // Nombre de producto: permite letras, números, espacios y algunos signos básicos
   static validarProductoNombre(texto) {
     if (texto === undefined || texto === null) return false;
-    const regex = /^[A-Za-z0-9├ü├ë├ì├ô├Ü├í├®├¡├│├║├æ├▒\s\.\-_,()]+$/;
+    const regex = /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s\.\-_,()]+$/;
     return regex.test(String(texto));
   }
 
@@ -34,7 +34,7 @@ static convertirAMayusculas(texto) {
     }
   }
 
-  // Precio: n├║mero decimal >= 0
+  // Precio: número decimal >= 0
   static validarPrecio(texto) {
     if (texto === undefined || texto === null) return false;
     const regex = /^\d+(\.\d+)?$/;
@@ -60,7 +60,7 @@ static convertirAMayusculas(texto) {
     return Validaciones.soloLetras(texto);
   }
 
-  // Valida c├®dula ecuatoriana: 10 d├¡gitos num├®ricos (simple check)
+  // Valida cédula ecuatoriana: 10 dígitos numéricos (simple check)
   static validarCedula(cedula) {
     if (!cedula) return false;
     const str = String(cedula).trim();
@@ -68,14 +68,14 @@ static convertirAMayusculas(texto) {
     return regex.test(str);
   }
 
-  // Observaci├│n: requerido, m├íximo 100 caracteres
+  // Observación: requerido, máximo 100 caracteres
   static validarObservacion(texto) {
     if (texto === undefined || texto === null) return false;
     const s = String(texto).trim();
     return s.length > 0 && s.length <= 100;
   }
 
-  // Sector: requerido, m├íximo 50 caracteres
+  // Sector: requerido, máximo 50 caracteres
   static validarSector(texto) {
     if (texto === undefined || texto === null) return false;
     const s = String(texto).trim();
@@ -92,13 +92,13 @@ static convertirAMayusculas(texto) {
 
     const validMimes = ['image/png', 'image/jpeg', 'image/jpg'];
     if (!validMimes.includes(logoMime)) {
-      return { valido: false, error: 'Formato de logo inv├ílido. Solo PNG/JPG permitidos', codigo: 'INVALID_LOGO_FORMAT' };
+      return { valido: false, error: 'Formato de logo inválido. Solo PNG/JPG permitidos', codigo: 'INVALID_LOGO_FORMAT' };
     }
 
-    // Validar tama├▒o (2MB)
+    // Validar tamaño (2MB)
     const maxSize = 2 * 1024 * 1024;
     if (logoBuffer.length > maxSize) {
-      return { valido: false, error: 'Logo demasiado grande. M├íximo 2MB', codigo: 'LOGO_TOO_LARGE' };
+      return { valido: false, error: 'Logo demasiado grande. Máximo 2MB', codigo: 'LOGO_TOO_LARGE' };
     }
 
     return { valido: true };
@@ -112,11 +112,11 @@ static convertirAMayusculas(texto) {
 
     const trimmed = nombreDirectora.trim();
     if (trimmed.length === 0) {
-      return { valido: false, error: 'Nombre de directora no puede estar vac├¡o', codigo: 'NOMBRE_DIRECTORA_EMPTY' };
+      return { valido: false, error: 'Nombre de directora no puede estar vacío', codigo: 'NOMBRE_DIRECTORA_EMPTY' };
     }
 
     if (trimmed.length > 100) {
-      return { valido: false, error: 'Nombre de directora demasiado largo (m├íximo 100 caracteres)', codigo: 'NOMBRE_DIRECTORA_TOO_LONG' };
+      return { valido: false, error: 'Nombre de directora demasiado largo (máximo 100 caracteres)', codigo: 'NOMBRE_DIRECTORA_TOO_LONG' };
     }
 
     return { valido: true, valor: trimmed };
@@ -130,7 +130,7 @@ static convertirAMayusculas(texto) {
 
     const trimmed = formatoId.trim();
     if (trimmed.length === 0) {
-      return { valido: false, error: 'ID de formato no puede estar vac├¡o', codigo: 'FORMATO_ID_EMPTY' };
+      return { valido: false, error: 'ID de formato no puede estar vacío', codigo: 'FORMATO_ID_EMPTY' };
     }
 
     return { valido: true, valor: trimmed };
@@ -152,10 +152,10 @@ static convertirAMayusculas(texto) {
       }
     }
 
-    // Validar c├®dula (opcional para generar PDF)
+    // Validar cédula (opcional para generar PDF)
     if (sociaData.cedula) {
       if (typeof sociaData.cedula !== 'string') {
-        errores.push({ campo: 'cedula', error: 'C├®dula debe ser texto', codigo: 'INVALID_CEDULA' });
+        errores.push({ campo: 'cedula', error: 'Cédula debe ser texto', codigo: 'INVALID_CEDULA' });
       } else {
         validated.cedula = sociaData.cedula.trim();
       }

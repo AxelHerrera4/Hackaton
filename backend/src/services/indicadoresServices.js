@@ -1,4 +1,4 @@
-﻿import { IndicadoresRepository } from '../repositories/indicadoresRepository.js';
+import { IndicadoresRepository } from '../repositories/indicadoresRepository.js';
 import { Validaciones } from '../utils/validaciones.js';
 
 const indicadoresRepo = new IndicadoresRepository();

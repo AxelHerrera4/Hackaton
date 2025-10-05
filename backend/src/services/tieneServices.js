@@ -1,4 +1,4 @@
-﻿import { TieneRepository } from '../repositories/tieneRepository.js';
+import { TieneRepository } from '../repositories/tieneRepository.js';
 
 const tieneRepo = new TieneRepository();
 

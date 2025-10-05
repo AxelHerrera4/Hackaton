@@ -1,4 +1,4 @@
-﻿import pool from '../config/db.js';
+import pool from '../config/db.js';
 
 export class ReporteRepository {
   async create(reporte) {
@@ -12,7 +12,7 @@ export class ReporteRepository {
     `;
     const values = [
       nextId,
-      reporte.USUARIO_ID,
+      reporte.USUARIO_ID, 
       reporte.REPORTEPROYECTO_NOMBRE,
       reporte.REPORTEPROYECTO_FECHAINICIO,
       reporte.REPORTEPROYECTO_FECHAFIN,

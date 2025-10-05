@@ -1,4 +1,4 @@
-﻿import pkg from "pg";
+import pkg from "pg";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -11,8 +11,8 @@ const pool = new Pool({
   user: process.env.DB_USER || "postgres",
   password: process.env.DB_PASSWORD || "admin123",
   database: process.env.DB_NAME || "fundaciones",
-  max: 10,           // m├íximo de conexiones
-  idleTimeoutMillis: 30000, // tiempo de espera antes de liberar conexi├│n
+  max: 10,           // máximo de conexiones
+  idleTimeoutMillis: 30000, // tiempo de espera antes de liberar conexión
 });
 
 export default pool;

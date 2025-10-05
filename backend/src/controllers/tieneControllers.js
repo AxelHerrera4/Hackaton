@@ -1,4 +1,4 @@
-﻿import { TieneService as TieneServiceClass } from '../services/tieneServices.js';
+import { TieneService as TieneServiceClass } from '../services/tieneServices.js';
 
 const tieneService = new TieneServiceClass();
 

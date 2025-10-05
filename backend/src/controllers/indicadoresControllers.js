@@ -1,4 +1,4 @@
-﻿import { IndicadoresService as IndicadoresServiceClass } from '../services/indicadoresServices.js';
+import { IndicadoresService as IndicadoresServiceClass } from '../services/indicadoresServices.js';
 
 const indicadoresService = new IndicadoresServiceClass();
 

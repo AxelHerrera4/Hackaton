@@ -1,4 +1,4 @@
-﻿export class Indicador {
+export class Indicador {
   constructor({ INDICADORES_ID, EJES_ID, INDICADORES_NOMBRE, INDICADORES_DESCRIPCION, INDICADORES_VALOR }) {
     this.INDICADORES_ID = INDICADORES_ID;
     this.EJES_ID = EJES_ID;

@@ -1,4 +1,4 @@
-﻿export class Usuario {
+export class Usuario {
   constructor({ USUARIO_ID, USUARIO_NOMBREONG, USUARIO_USER, USUARIO_CONTRASENA, USUARI_DESCRIPCION }) {
     this.USUARIO_ID = USUARIO_ID;
     this.USUARIO_NOMBREONG = USUARIO_NOMBREONG;

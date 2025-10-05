@@ -1,4 +1,4 @@
-﻿import { EjesService as EjesServiceClass } from '../services/ejeServices.js';
+import { EjesService as EjesServiceClass } from '../services/ejeServices.js';
 
 const ejesService = new EjesServiceClass();
 
@@ -35,7 +35,7 @@ export class EjesController {
       const { id } = req.params;
       const resultado = await ejesService.eliminarEje(id);
       if (!resultado) {
-        return res.status(404).json({ message: "No se encontr├│ el eje" });
+        return res.status(404).json({ message: "No se encontró el eje" });
       }
       res.status(200).json({ message: "Eje eliminado correctamente" });
     } catch (error) {
@@ -70,7 +70,7 @@ export class EjesController {
       const { id } = req.params;
       const eje = await ejesService.obtenerEjePorId(id);
       if (!eje || eje.length === 0) {
-        return res.status(404).json({ message: "No se encontr├│ el eje" });
+        return res.status(404).json({ message: "No se encontró el eje" });
       }
       res.status(200).json(eje);
     } catch (error) {

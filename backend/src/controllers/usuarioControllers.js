@@ -1,4 +1,4 @@
-﻿import { UsuarioService as UsuarioServiceClass } from '../services/usuarioServices.js';
+import { UsuarioService as UsuarioServiceClass } from '../services/usuarioServices.js';
 
 const usuarioService = new UsuarioServiceClass();
 
