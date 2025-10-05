@@ -10,6 +10,7 @@ import authRoutes from './authRoutes.js';
 import plantillaRoutes from './plantillaRoutes.js';
 import respuestaRoutes from './respuestaRoutes.js';
 import instanciaRoutes from './instanciaRoutes.js';
+import solicitudRoutes from './solicitudRoutes.js';
 
 const router = express.Router();
 
@@ -29,6 +30,7 @@ router.use('/auth', authRoutes);
 router.use('/plantilla', plantillaRoutes);
 router.use('/respuesta', respuestaRoutes);
 router.use('/instancia', instanciaRoutes);
+router.use('/solicitud', solicitudRoutes);
 
 
 export default router;

@@ -5,6 +5,7 @@ export { indicadoresService } from './indicadoresService'
 export { reportesService } from './reportesService'
 export { usuariosService } from './usuariosService'
 export { paymentsService } from './paymentsService'
+export { plantillaService } from './plantillaService'
 
 // Tipos
 export type { LoginResponse } from './authService'
@@ -12,3 +13,4 @@ export type { Eje } from './ejesService'
 export type { Indicador } from './indicadoresService'
 export type { ReporteProyecto } from './reportesService'
 export type { UsuarioAPI } from './usuariosService'
+export type { PlantillaPayload } from './plantillaService'
