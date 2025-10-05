@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: favorita
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - favorita-network
+
+  metabase:
+    image: metabase/metabase:latest
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: favorita
+      MB_DB_PORT: 5432
+      MB_DB_USER: postgres
+      MB_DB_PASS: 12345678
+      MB_DB_HOST: postgres
+    depends_on:
+      - postgres
+    ports:
+      - "3030:3000"
+    volumes:
+      - metabase_data:/metabase-data
+    networks:
+      - favorita-network
+
+volumes:
+  postgres_data:
+  metabase_data:
+
+networks:
+  favorita-network:
+    driver: bridge
