@@ -94,13 +94,33 @@ const reportesHardcoded: ReporteProyecto[] = [
 ];
 
 class ReportesService {
+  private getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    const headers: { [key: string]: string } = {
+      'Content-Type': 'application/json'
+    };
+    
+    // Solo agregar Authorization si el token existe y no está vacío
+    if (token && token.trim() !== '' && token !== 'null' && token !== 'undefined') {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return headers;
+  }
+
   async getAllReportes(): Promise<ReporteProyecto[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/reporte`);
+      const response = await fetch(`${API_BASE_URL}/reporte`, {
+        headers: this.getAuthHeaders()
+      });
+      
       if (!response.ok) {
         throw new Error('Backend not available');
       }
-      return response.json();
+      
+      const data = await response.json();
+      console.log('Loaded reportes from backend:', data.length);
+      return data;
     } catch (error) {
       console.log('Using hardcoded data for reportes');
       return reportesHardcoded;
@@ -109,11 +129,17 @@ class ReportesService {
 
   async getReporteById(id: number): Promise<ReporteProyecto[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/reporte/id/${id}`);
+      const response = await fetch(`${API_BASE_URL}/reporte/id/${id}`, {
+        headers: this.getAuthHeaders()
+      });
+      
       if (!response.ok) {
         throw new Error('Backend not available');
       }
-      return response.json();
+      
+      const data = await response.json();
+      console.log('Loaded reporte from backend');
+      return data;
     } catch (error) {
       console.log('Using hardcoded data for reporte by id');
       return reportesHardcoded.filter(rep => rep.REPORTEPROYECTO_ID === id);
@@ -124,15 +150,17 @@ class ReportesService {
     try {
       const response = await fetch(`${API_BASE_URL}/reporte/crear`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.getAuthHeaders(),
         body: JSON.stringify(reporte),
       });
+      
       if (!response.ok) {
         throw new Error('Backend not available');
       }
-      return response.json();
+      
+      const data = await response.json();
+      console.log('Reporte created via backend');
+      return data;
     } catch (error) {
       console.log('Backend not available, simulating reporte creation');
       return {
@@ -146,15 +174,17 @@ class ReportesService {
     try {
       const response = await fetch(`${API_BASE_URL}/reporte/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.getAuthHeaders(),
         body: JSON.stringify(updates),
       });
+      
       if (!response.ok) {
         throw new Error('Backend not available');
       }
-      return response.json();
+      
+      const data = await response.json();
+      console.log('Reporte updated via backend');
+      return data;
     } catch (error) {
       console.log('Backend not available, simulating reporte update');
       const reporteIndex = reportesHardcoded.findIndex(r => r.REPORTEPROYECTO_ID === id);
@@ -169,11 +199,17 @@ class ReportesService {
   // Nuevas funcionalidades para generación de reportes
   async getGeneralReport(period: string): Promise<ReportData> {
     try {
-      const response = await fetch(`${API_BASE_URL}/reportes/general?period=${period}`);
+      const response = await fetch(`${API_BASE_URL}/reportes/general?period=${period}`, {
+        headers: this.getAuthHeaders()
+      });
+      
       if (!response.ok) {
         throw new Error('Backend not available');
       }
-      return response.json();
+      
+      const data = await response.json();
+      console.log('General report loaded from backend');
+      return data;
     } catch (error) {
       console.log('Using hardcoded data for general report');
       return this.generateHardcodedGeneralReport(period);
@@ -182,11 +218,17 @@ class ReportesService {
 
   async getFoundationReport(foundationId: string, period: string): Promise<ReportData> {
     try {
-      const response = await fetch(`${API_BASE_URL}/reportes/foundation/${foundationId}?period=${period}`);
+      const response = await fetch(`${API_BASE_URL}/reportes/foundation/${foundationId}?period=${period}`, {
+        headers: this.getAuthHeaders()
+      });
+      
       if (!response.ok) {
         throw new Error('Backend not available');
       }
-      return response.json();
+      
+      const data = await response.json();
+      console.log('Foundation report loaded from backend');
+      return data;
     } catch (error) {
       console.log('Using hardcoded data for foundation report');
       return this.generateHardcodedFoundationReport(foundationId, period);
@@ -197,15 +239,16 @@ class ReportesService {
     try {
       const response = await fetch(`${API_BASE_URL}/metabase/dashboard`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.getAuthHeaders(),
         body: JSON.stringify(config),
       });
+      
       if (!response.ok) {
         throw new Error('Backend not available');
       }
+      
       const result = await response.json();
+      console.log('Metabase dashboard created via backend');
       return result.dashboardUrl;
     } catch (error) {
       console.log('Backend not available, returning mock Metabase URL');
@@ -217,15 +260,17 @@ class ReportesService {
     try {
       const response = await fetch(`${API_BASE_URL}/reports/excel`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.getAuthHeaders(),
         body: JSON.stringify(data),
       });
+      
       if (!response.ok) {
         throw new Error('Backend not available');
       }
-      return response.blob();
+      
+      const blob = await response.blob();
+      console.log('Excel report generated via backend');
+      return blob;
     } catch (error) {
       console.log('Backend not available, generating mock Excel file');
       return this.generateMockExcelFile(data);
@@ -236,15 +281,17 @@ class ReportesService {
     try {
       const response = await fetch(`${API_BASE_URL}/reports/powerpoint`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.getAuthHeaders(),
         body: JSON.stringify(data),
       });
+      
       if (!response.ok) {
         throw new Error('Backend not available');
       }
-      return response.blob();
+      
+      const blob = await response.blob();
+      console.log('PowerPoint report generated via backend');
+      return blob;
     } catch (error) {
       console.log('Backend not available, generating mock PowerPoint file');
       return this.generateMockPowerPointFile(data);

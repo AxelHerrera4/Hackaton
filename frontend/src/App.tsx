@@ -5,6 +5,8 @@ import Dashboard from './components/Dashboard'
 import AdminPanel from './components/AdminPanel'
 import FoundationOnboarding from './components/FoundationOnboarding'
 import { authService } from './services/authService'
+import { cleanAuthStorage } from './utils/authCleanup'
+import logoImage from './assets/images.png'
 
 export interface User {
   id: number;
@@ -23,6 +25,9 @@ function App() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Limpiar tokens inválidos al inicio
+    cleanAuthStorage();
+    
     const token = localStorage.getItem('token')
     if (token) {
       authService.getProfile()
@@ -67,7 +72,14 @@ function App() {
       <header className="header">
         <div className="container">
           <div className="header-content">
-            <div className="logo">Fundación Favorita</div>
+            <div className="logo-header">
+              <img 
+                src={logoImage} 
+                alt="Fundación Favorita" 
+                className="header-logo"
+              />
+              <span className="logo-text">Fundación Favorita</span>
+            </div>
             <div className="user-info">
               <span>{user.fullName}</span>
               <span className="text-sm opacity-75">({user.role})</span>

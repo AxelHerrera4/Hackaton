@@ -1,4 +1,5 @@
 import { User } from '../App'
+import logoImage from '../assets/images.png'
 
 interface FoundationOnboardingProps {
   user: User;
@@ -7,7 +8,19 @@ interface FoundationOnboardingProps {
 export default function FoundationOnboarding({ user }: FoundationOnboardingProps) {
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">Bienvenido a Fundación Favorita</h2>
+      <div className="fundacion-header">
+        <div className="fundacion-logo-section">
+          <img 
+            src={logoImage} 
+            alt="Fundación Favorita" 
+            className="fundacion-logo"
+          />
+          <div>
+            <h2 className="fundacion-title">Bienvenido a Fundación Favorita</h2>
+            <p className="fundacion-subtitle">Portal de Configuración para Fundaciones</p>
+          </div>
+        </div>
+      </div>
       
       <div className="card">
         <div className="card-header">

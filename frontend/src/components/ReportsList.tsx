@@ -49,7 +49,7 @@ export default function ReportsList({ user }: ReportsListProps) {
     }
   };
 
-  const handleReview = async (reportId: number, approved: boolean, rejectionReason?: string) => {
+  const handleReview = async (reportId: number, approved: boolean) => {
     try {
       // Actualizar el estado del reporte
       const nuevoEstado = approved ? 'Aprobado' : 'Rechazado';
@@ -80,11 +80,6 @@ export default function ReportsList({ user }: ReportsListProps) {
       </span>
     );
   };
-
-  const months = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-  ];
 
   if (loading) {
     return <div className="text-center">Cargando reportes...</div>;
@@ -162,7 +157,7 @@ export default function ReportsList({ user }: ReportsListProps) {
                             onClick={() => {
                               const reason = prompt('Motivo del rechazo:');
                               if (reason) {
-                                handleReview(report.REPORTEPROYECTO_ID, false, reason);
+                                handleReview(report.REPORTEPROYECTO_ID, false);
                               }
                             }}
                           >

@@ -6,6 +6,7 @@ import PaymentsList from './PaymentsList'
 import AdminMetrics from './AdminMetrics'
 import ReportsGenerator from './ReportsGenerator'
 import KPIForm from './KPIForm'
+import logoImage from '../assets/images.png'
 
 interface DashboardProps {
   user: User;
@@ -17,8 +18,17 @@ export default function Dashboard({ user }: DashboardProps) {
   const renderAdminDashboard = () => (
     <div>
       <div className="fundacion-header">
-        <h1 className="fundacion-title">Fundación Favorita</h1>
-        <p className="fundacion-subtitle">Panel de Administración - Sistema de Gestión de Reportes</p>
+        <div className="fundacion-logo-section">
+          <img 
+            src={logoImage} 
+            alt="Fundación Favorita" 
+            className="fundacion-logo"
+          />
+          <div>
+            <h1 className="fundacion-title">Fundación Favorita</h1>
+            <p className="fundacion-subtitle">Panel de Administración - Sistema de Gestión de Reportes</p>
+          </div>
+        </div>
       </div>
       
       <h2 className="text-2xl font-bold mb-4">Panel de Administrador</h2>
@@ -110,18 +120,27 @@ export default function Dashboard({ user }: DashboardProps) {
         </>
       )}
 
-      {activeTab === 'metrics' && <AdminMetrics user={user} />}
+      {activeTab === 'metrics' && <AdminMetrics />}
       {activeTab === 'reports' && <ReportsList user={user} />}
       {activeTab === 'generator' && <ReportsGenerator />}
-      {activeTab === 'payments' && <PaymentsList user={user} />}
+      {activeTab === 'payments' && <PaymentsList />}
     </div>
   )
 
   const renderLiderDashboard = () => (
     <div>
       <div className="fundacion-header">
-        <h1 className="fundacion-title">Fundación Favorita</h1>
-        <p className="fundacion-subtitle">Portal de Fundaciones - Sistema de Reportes</p>
+        <div className="fundacion-logo-section">
+          <img 
+            src={logoImage} 
+            alt="Fundación Favorita" 
+            className="fundacion-logo"
+          />
+          <div>
+            <h1 className="fundacion-title">Fundación Favorita</h1>
+            <p className="fundacion-subtitle">Portal de Fundaciones - Sistema de Reportes</p>
+          </div>
+        </div>
       </div>
       
       <h2 className="text-2xl font-bold mb-4">
@@ -303,7 +322,7 @@ export default function Dashboard({ user }: DashboardProps) {
         </>
       )}
 
-      {activeTab === 'payments' && <PaymentsList user={user} />}
+      {activeTab === 'payments' && <PaymentsList />}
     </div>
   )
 

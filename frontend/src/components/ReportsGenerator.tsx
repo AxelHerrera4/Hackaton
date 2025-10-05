@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { reportesService } from '../services/reportesService'
 import { usuariosService } from '../services/usuariosService'
-import { ejesService } from '../services/ejesService'
-import { indicadoresService } from '../services/indicadoresService'
+import { reportGenerator, ReportGenerationData } from '../services/reportGenerator'
+import MetabaseEmbed from './MetabaseEmbed'
 
 interface Foundation {
   id: number;
@@ -20,11 +20,19 @@ interface KPIData {
 }
 
 interface ReportData {
-  foundation: Foundation;
+  foundation?: Foundation;
+  foundations?: Foundation[];
   kpis: KPIData[];
   period: string;
   totalBeneficiarios: number;
   proyectosActivos: number;
+  metricasPorEje?: {
+    [eje: string]: {
+      total: number;
+      crecimiento: number;
+      evidencias: number;
+    };
+  };
 }
 
 export default function ReportsGenerator() {
@@ -33,7 +41,7 @@ export default function ReportsGenerator() {
   const [reportType, setReportType] = useState<'general' | 'foundation'>('general')
   const [period, setPeriod] = useState<string>('')
   const [loading, setLoading] = useState(false)
-  const [reportData, setReportData] = useState<ReportData | null>(null)
+  const [showDashboard, setShowDashboard] = useState(false)
 
   useEffect(() => {
     loadFoundations()
@@ -74,7 +82,7 @@ export default function ReportsGenerator() {
     const reportData = await reportesService.getGeneralReport(period)
     
     // Crear dashboard en Metabase
-    const metabaseUrl = await createMetabaseDashboard('general', reportData)
+    await createMetabaseDashboard('general', reportData)
     
     // Generar Excel
     await generateExcelReport(reportData, 'general')
@@ -95,7 +103,7 @@ export default function ReportsGenerator() {
     const reportData = await reportesService.getFoundationReport(selectedFoundation, period)
     
     // Crear dashboard en Metabase
-    const metabaseUrl = await createMetabaseDashboard('foundation', reportData)
+    await createMetabaseDashboard('foundation', reportData)
     
     // Generar Excel
     await generateExcelReport(reportData, 'foundation')
@@ -103,47 +111,88 @@ export default function ReportsGenerator() {
     // Generar PowerPoint
     await generatePowerPointReport(reportData, 'foundation')
     
-    alert(`Reporte de ${reportData.foundation.nombre} generado exitosamente`)
+    const foundationName = reportData.foundation?.nombre || 'la fundación seleccionada'
+    alert(`Reporte de ${foundationName} generado exitosamente`)
   }
 
   const createMetabaseDashboard = async (type: string, data: any) => {
-    // Aquí se integrará con Metabase para crear dashboards automáticamente
-    const metabaseConfig = {
-      url: 'http://localhost:3030', // URL de Metabase
-      dashboardType: type,
-      data: data,
-      period: period
+    try {
+      console.log('Creando dashboard de Metabase...')
+      
+      // Convertir datos al formato esperado
+      const generationData: ReportGenerationData = {
+        type: type as 'general' | 'foundation',
+        period: data.period,
+        kpis: data.kpis,
+        foundation: data.foundation,
+        totalBeneficiarios: data.totalBeneficiarios,
+        proyectosActivos: data.proyectosActivos,
+        metricasPorEje: data.metricasPorEje
+      }
+      
+      const dashboardUrl = reportGenerator.generateMetabaseDashboard(generationData)
+      
+      // Abrir el dashboard en una nueva ventana
+      window.open(dashboardUrl, '_blank')
+      
+      console.log('✅ Dashboard de Metabase abierto:', dashboardUrl)
+      return dashboardUrl
+    } catch (error) {
+      console.error('Error creando dashboard:', error)
+      const fallbackUrl = 'http://localhost:3030/dashboard/1-fundacion-favorita-general'
+      window.open(fallbackUrl, '_blank')
+      return fallbackUrl
     }
-    
-    return await reportesService.createMetabaseDashboard(metabaseConfig)
   }
 
   const generateExcelReport = async (data: ReportData, type: string) => {
-    // Generar archivo Excel con gráficos
-    const excelData = {
-      type,
-      data,
-      period,
-      charts: true,
-      includeEvidence: true
+    try {
+      console.log('Generando Excel con datos reales...')
+      
+      // Convertir datos al formato esperado por el generador
+      const generationData: ReportGenerationData = {
+        type: type as 'general' | 'foundation',
+        period: data.period,
+        kpis: data.kpis,
+        foundation: data.foundation,
+        totalBeneficiarios: data.totalBeneficiarios,
+        proyectosActivos: data.proyectosActivos,
+        metricasPorEje: data.metricasPorEje
+      }
+      
+      const blob = await reportGenerator.generateExcel(generationData)
+      downloadFile(blob, `reporte_${type}_${period}.xlsx`)
+      
+      console.log('✅ Archivo Excel generado exitosamente')
+    } catch (error) {
+      console.error('Error generando Excel:', error)
+      alert('Error al generar el archivo Excel')
     }
-    
-    const blob = await reportesService.generateExcelReport(excelData)
-    downloadFile(blob, `reporte_${type}_${period}.xlsx`)
   }
 
   const generatePowerPointReport = async (data: ReportData, type: string) => {
-    // Generar presentación PowerPoint
-    const pptData = {
-      type,
-      data,
-      period,
-      includeCharts: true,
-      includeFoundationLogo: true
+    try {
+      console.log('Generando PowerPoint con datos reales...')
+      
+      // Convertir datos al formato esperado por el generador
+      const generationData: ReportGenerationData = {
+        type: type as 'general' | 'foundation',
+        period: data.period,
+        kpis: data.kpis,
+        foundation: data.foundation,
+        totalBeneficiarios: data.totalBeneficiarios,
+        proyectosActivos: data.proyectosActivos,
+        metricasPorEje: data.metricasPorEje
+      }
+      
+      const blob = await reportGenerator.generatePowerPoint(generationData)
+      downloadFile(blob, `presentacion_${type}_${period}.pptx`)
+      
+      console.log('✅ Presentación PowerPoint generada exitosamente')
+    } catch (error) {
+      console.error('Error generando PowerPoint:', error)
+      alert('Error al generar la presentación PowerPoint')
     }
-    
-    const blob = await reportesService.generatePowerPointReport(pptData)
-    downloadFile(blob, `presentacion_${type}_${period}.pptx`)
   }
 
   const downloadFile = (blob: Blob, filename: string) => {
@@ -241,58 +290,93 @@ export default function ReportsGenerator() {
 
         {/* Panel de resultados */}
         <div className="lg:col-span-2">
-          <div className="card">
-            <h3>Tipos de Reportes Disponibles</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div className="report-type-card">
-                <div className="report-icon">📊</div>
-                <h4>Reporte General</h4>
-                <p>Dashboard completo con KPIs de todas las fundaciones</p>
-                <ul className="feature-list">
-                  <li>✅ Gráficos estadísticos por eje</li>
-                  <li>✅ Comparativas entre fundaciones</li>
-                  <li>✅ Exportación a Excel</li>
-                  <li>✅ Presentación PowerPoint</li>
-                </ul>
+          {showDashboard ? (
+            <div className="card">
+              <div className="card-header">
+                <h3>📊 Dashboard Interactivo - Metabase</h3>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => setShowDashboard(false)}
+                >
+                  Ocultar Dashboard
+                </button>
+              </div>
+              <MetabaseEmbed
+                type="dashboard"
+                dashboardId={reportType === 'general' ? 1 : 2}
+                params={{
+                  period: period,
+                  foundation_id: selectedFoundation || 'all'
+                }}
+              />
+            </div>
+          ) : (
+            <>
+              <div className="card">
+                <h3>Tipos de Reportes Disponibles</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div className="report-type-card">
+                    <div className="report-icon">📊</div>
+                    <h4>Reporte General</h4>
+                    <p>Dashboard completo con KPIs de todas las fundaciones</p>
+                    <ul className="feature-list">
+                      <li>✅ Gráficos estadísticos por eje</li>
+                      <li>✅ Comparativas entre fundaciones</li>
+                      <li>✅ Exportación a Excel</li>
+                      <li>✅ Presentación PowerPoint</li>
+                    </ul>
+                  </div>
+
+                  <div className="report-type-card">
+                    <div className="report-icon">🏢</div>
+                    <h4>Reporte por Fundación</h4>
+                    <p>Análisis detallado de una fundación específica</p>
+                    <ul className="feature-list">
+                      <li>✅ KPIs detallados por mes</li>
+                      <li>✅ Evidencias fotográficas</li>
+                      <li>✅ Seguimiento de objetivos</li>
+                      <li>✅ Dashboard personalizado</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                {period && (
+                  <div className="mt-4">
+                    <button
+                      className="btn btn-info w-full"
+                      onClick={() => setShowDashboard(true)}
+                    >
+                      🔍 Ver Dashboard Interactivo en Metabase
+                    </button>
+                  </div>
+                )}
               </div>
 
-              <div className="report-type-card">
-                <div className="report-icon">🏢</div>
-                <h4>Reporte por Fundación</h4>
-                <p>Análisis detallado de una fundación específica</p>
-                <ul className="feature-list">
-                  <li>✅ KPIs detallados por mes</li>
-                  <li>✅ Evidencias fotográficas</li>
-                  <li>✅ Seguimiento de objetivos</li>
-                  <li>✅ Dashboard personalizado</li>
-                </ul>
+              {/* Preview de métricas */}
+              <div className="card mt-4">
+                <h3>Vista Previa de Métricas</h3>
+                <div className="metrics-preview">
+                  <div className="metric-card">
+                    <div className="metric-value">187</div>
+                    <div className="metric-label">Total Beneficiarios</div>
+                  </div>
+                  <div className="metric-card">
+                    <div className="metric-value">15</div>
+                    <div className="metric-label">Proyectos Activos</div>
+                  </div>
+                  <div className="metric-card">
+                    <div className="metric-value">8</div>
+                    <div className="metric-label">KPIs Monitoreados</div>
+                  </div>
+                  <div className="metric-card">
+                    <div className="metric-value">3</div>
+                    <div className="metric-label">Fundaciones</div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-
-          {/* Preview de métricas */}
-          <div className="card mt-4">
-            <h3>Vista Previa de Métricas</h3>
-            <div className="metrics-preview">
-              <div className="metric-card">
-                <div className="metric-value">187</div>
-                <div className="metric-label">Total Beneficiarios</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-value">15</div>
-                <div className="metric-label">Proyectos Activos</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-value">8</div>
-                <div className="metric-label">KPIs Monitoreados</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-value">3</div>
-                <div className="metric-label">Fundaciones</div>
-              </div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </div>
     </div>

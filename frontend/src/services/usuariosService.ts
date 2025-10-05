@@ -6,10 +6,10 @@ export interface UsuarioAPI {
   USUARIO_USER: string;
   USUARIO_CONTRASENA: string;
   USUARI_DESCRIPCION: string;
-  role?: 'admin' | 'fundacion';
+  USUARIO_ROLE?: 'admin' | 'fundacion' | 'ong';
 }
 
-// Datos hardcoded cuando el backend no esté disponible
+// Datos hardcoded como fallback
 const usuariosHardcoded: UsuarioAPI[] = [
   {
     USUARIO_ID: 1,
@@ -17,7 +17,7 @@ const usuariosHardcoded: UsuarioAPI[] = [
     USUARIO_USER: 'admin@favorita.com',
     USUARIO_CONTRASENA: '12345678',
     USUARI_DESCRIPCION: 'Administrador del sistema',
-    role: 'admin'
+    USUARIO_ROLE: 'admin'
   },
   {
     USUARIO_ID: 2,
@@ -25,7 +25,7 @@ const usuariosHardcoded: UsuarioAPI[] = [
     USUARIO_USER: 'fundacion@esperanza.org',
     USUARIO_CONTRASENA: '12345678',
     USUARI_DESCRIPCION: 'Fundación dedicada a la educación',
-    role: 'fundacion'
+    USUARIO_ROLE: 'fundacion'
   },
   {
     USUARIO_ID: 3,
@@ -33,34 +33,59 @@ const usuariosHardcoded: UsuarioAPI[] = [
     USUARIO_USER: 'contacto@verde.org',
     USUARIO_CONTRASENA: '12345678',
     USUARI_DESCRIPCION: 'Fundación enfocada en medio ambiente',
-    role: 'fundacion'
+    USUARIO_ROLE: 'fundacion'
   }
 ];
 
 class UsuariosService {
+  private getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    const headers: { [key: string]: string } = {
+      'Content-Type': 'application/json'
+    };
+    
+    // Solo agregar Authorization si el token existe y no está vacío
+    if (token && token.trim() !== '' && token !== 'null' && token !== 'undefined') {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return headers;
+  }
+
   async getAllUsuarios(): Promise<UsuarioAPI[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/usuario`);
+      const response = await fetch(`${API_BASE_URL}/usuario`, {
+        headers: this.getAuthHeaders()
+      });
+      
       if (!response.ok) {
         throw new Error('Backend not available');
       }
-      return response.json();
+      
+      const data = await response.json();
+      console.log('Loaded users from backend:', data.length);
+      return data;
     } catch (error) {
       console.log('Using hardcoded data for usuarios');
       return usuariosHardcoded;
     }
   }
 
-  async getUsuarioById(id: number): Promise<UsuarioAPI[]> {
+  async getUsuarioById(id: number): Promise<UsuarioAPI | null> {
     try {
-      const response = await fetch(`${API_BASE_URL}/usuario/id/${id}`);
+      const response = await fetch(`${API_BASE_URL}/usuario/id/${id}`, {
+        headers: this.getAuthHeaders()
+      });
+      
       if (!response.ok) {
         throw new Error('Backend not available');
       }
-      return response.json();
+      
+      const data = await response.json();
+      return data[0] || null;
     } catch (error) {
       console.log('Using hardcoded data for usuario by id');
-      return usuariosHardcoded.filter(user => user.USUARIO_ID === id);
+      return usuariosHardcoded.find(user => user.USUARIO_ID === id) || null;
     }
   }
 
@@ -68,15 +93,17 @@ class UsuariosService {
     try {
       const response = await fetch(`${API_BASE_URL}/usuario/crear`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.getAuthHeaders(),
         body: JSON.stringify(usuario),
       });
+      
       if (!response.ok) {
         throw new Error('Backend not available');
       }
-      return response.json();
+      
+      const data = await response.json();
+      console.log('User created via backend');
+      return data;
     } catch (error) {
       console.log('Backend not available, simulating usuario creation');
       return {
@@ -86,9 +113,92 @@ class UsuariosService {
     }
   }
 
+  async updateUsuario(id: number, updates: Partial<UsuarioAPI>): Promise<UsuarioAPI> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/usuario/${id}`, {
+        method: 'PUT',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(updates),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Backend not available');
+      }
+      
+      const data = await response.json();
+      console.log('User updated via backend');
+      return data;
+    } catch (error) {
+      console.log('Backend not available, simulating usuario update');
+      const userIndex = usuariosHardcoded.findIndex(u => u.USUARIO_ID === id);
+      if (userIndex !== -1) {
+        usuariosHardcoded[userIndex] = { ...usuariosHardcoded[userIndex], ...updates };
+        return usuariosHardcoded[userIndex];
+      }
+      throw new Error('Usuario no encontrado');
+    }
+  }
+
+  async deleteUsuario(id: number): Promise<boolean> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/usuario/${id}`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders(),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Backend not available');
+      }
+      
+      console.log('User deleted via backend');
+      return true;
+    } catch (error) {
+      console.log('Backend not available, simulating usuario deletion');
+      const userIndex = usuariosHardcoded.findIndex(u => u.USUARIO_ID === id);
+      if (userIndex !== -1) {
+        usuariosHardcoded.splice(userIndex, 1);
+        return true;
+      }
+      return false;
+    }
+  }
+
+  async getFoundations(): Promise<{ id: number; nombre: string; descripcion: string }[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/usuario/foundations`, {
+        headers: this.getAuthHeaders()
+      });
+      
+      if (!response.ok) {
+        // Si no hay endpoint específico, obtener todos y filtrar
+        const allUsers = await this.getAllUsuarios();
+        return allUsers
+          .filter(user => user.USUARIO_ROLE === 'fundacion' || user.USUARIO_ROLE === 'ong')
+          .map(user => ({
+            id: user.USUARIO_ID,
+            nombre: user.USUARIO_NOMBREONG,
+            descripcion: user.USUARI_DESCRIPCION
+          }));
+      }
+      
+      const data = await response.json();
+      console.log('Loaded foundations from backend');
+      return data;
+    } catch (error) {
+      console.log('Using hardcoded data for foundations');
+      return usuariosHardcoded
+        .filter(user => user.USUARIO_ROLE === 'fundacion' || user.USUARIO_ROLE === 'ong')
+        .map(user => ({
+          id: user.USUARIO_ID,
+          nombre: user.USUARIO_NOMBREONG,
+          descripcion: user.USUARI_DESCRIPCION
+        }));
+    }
+  }
+
   async loginUsuario(credentials: { user: string; password: string }): Promise<{ user: UsuarioAPI; token: string }> {
     try {
-      // Intentar login con el backend (si tiene endpoint de login)
+      // Usar el authService en lugar de login directo
       const usuarios = await this.getAllUsuarios();
       const usuario = usuarios.find(u => u.USUARIO_USER === credentials.user && u.USUARIO_CONTRASENA === credentials.password);
       
@@ -114,25 +224,6 @@ class UsuariosService {
         user: usuario,
         token: `token-${usuario.USUARIO_ID}-${Date.now()}`
       };
-    }
-  }
-
-  async getFoundations(): Promise<{ id: number; nombre: string; descripcion: string }[]> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/usuario/foundations`);
-      if (!response.ok) {
-        throw new Error('Backend not available');
-      }
-      return response.json();
-    } catch (error) {
-      console.log('Using hardcoded data for foundations');
-      return usuariosHardcoded
-        .filter(user => user.role === 'fundacion')
-        .map(user => ({
-          id: user.USUARIO_ID,
-          nombre: user.USUARIO_NOMBREONG,
-          descripcion: user.USUARI_DESCRIPCION
-        }));
     }
   }
 }

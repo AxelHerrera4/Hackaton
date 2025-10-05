@@ -1,6 +1,4 @@
-// Servicio de autenticación con datos hardcoded
-
-export interface LoginResponse {
+﻿export interface LoginResponse {
   access_token: string;
   user: {
     id: number;
@@ -12,103 +10,64 @@ export interface LoginResponse {
 
 export const authService = {
   async login(email: string, password: string): Promise<LoginResponse> {
-    console.log('Using hardcoded login validation')
-    
-    // Usuarios hardcoded para login
-    const usuariosHardcoded = [
-      {
-        id: 1,
-        email: 'admin@favorita.com',
-        password: '12345678',
-        nombre: 'Administrador Sistema',
-        role: 'admin' as const
-      },
-      {
-        id: 2,
-        email: 'fundacion@esperanza.org',
-        password: '12345678',
-        nombre: 'Fundación Esperanza',
-        role: 'fundacion' as const
-      },
-      {
-        id: 3,
-        email: 'contacto@verde.org',
-        password: '12345678',
-        nombre: 'Fundación Verde',
-        role: 'fundacion' as const
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          user: email,
+          password: password 
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Error de conexión' }));
+        throw new Error(errorData.message || 'Credenciales inválidas');
       }
-    ];
-    
-    // Buscar usuario
-    const usuario = usuariosHardcoded.find(u => u.email === email && u.password === password);
-    
-    if (!usuario) {
-      throw new Error('Credenciales inválidas');
+
+      const data = await response.json();
+      
+      const loginResponse: LoginResponse = {
+        access_token: data.token,
+        user: {
+          id: data.user?.id || 1,
+          email: data.user?.email || email,
+          nombre: data.user?.nombre || 'Usuario',
+          role: data.user?.role || 'admin'
+        }
+      };
+      
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(loginResponse.user));
+      
+      return loginResponse;
+    } catch (error) {
+      throw error;
     }
-    
-    // Simular token
-    const token = btoa(`${email}:${Date.now()}`);
-    
-    // Guardar datos en localStorage
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(usuario));
-    
-    return {
-      access_token: token,
-      user: {
-        id: usuario.id,
-        email: usuario.email,
-        nombre: usuario.nombre,
-        role: usuario.role
-      }
-    };
   },
 
   async getProfile() {
-    console.log('Using stored user data for profile')
-    
-    // Obtener datos del localStorage
-    const userData = localStorage.getItem('user');
-    if (!userData) {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No hay token');
+      }
+
+      const userData = localStorage.getItem('user');
+      if (!userData) {
+        throw new Error('No hay sesión activa');
+      }
+      
+      return JSON.parse(userData);
+    } catch (error) {
       throw new Error('No hay sesión activa');
     }
-    
-    return JSON.parse(userData);
-  },
-
-  async register(userData: {
-    email: string;
-    password: string;
-    nombre: string;
-    rol: 'admin' | 'fundacion';
-  }) {
-    console.log('Using hardcoded registration')
-    
-    // Simular creación de usuario
-    const nuevoUsuario = {
-      id: Date.now(), // ID único basado en timestamp
-      email: userData.email,
-      nombre: userData.nombre,
-      role: userData.rol
-    };
-    
-    return {
-      message: 'Usuario creado exitosamente',
-      user: nuevoUsuario
-    };
   },
 
   logout() {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-  },
-
-  isAuthenticated(): boolean {
-    return !!localStorage.getItem('token')
-  },
-
-  getCurrentUser() {
-    const userStr = localStorage.getItem('user')
-    return userStr ? JSON.parse(userStr) : null
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
   }
-}
+};

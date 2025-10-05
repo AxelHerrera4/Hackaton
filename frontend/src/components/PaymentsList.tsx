@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react';
 import { paymentsService } from '../services/paymentsService';
 
-interface PaymentsListProps {
-  user: any;
-}
-
-export default function PaymentsList({ user }: PaymentsListProps) {
+export default function PaymentsList() {
   const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');

@@ -15,15 +15,18 @@ const app = express();
 // Middleware CORS seguro
 const allowedOrigins = [
   'http://localhost:3000', 
+  'http://localhost:3001', // Agregado para frontend React
   'http://localhost:5173',
   'http://localhost:5174'
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
+    // Permitir requests sin origin (como Postman) en desarrollo
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log(`CORS blocked origin: ${origin}`);
       callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   },

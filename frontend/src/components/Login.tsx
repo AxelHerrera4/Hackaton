@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { authService, LoginResponse } from '../services/authService'
 import { User } from '../App'
+import logoImage from '../assets/images.png'
 
 interface LoginProps {
   onLogin: (user: User, token: string) => void;
@@ -39,6 +40,13 @@ export default function Login({ onLogin }: LoginProps) {
   return (
     <div className="login-container">
       <div className="login-card">
+        <div className="logo-container">
+          <img 
+            src={logoImage} 
+            alt="Fundación Favorita" 
+            className="login-logo"
+          />
+        </div>
         <h1 className="login-title">Fundación Favorita</h1>
         <p className="login-subtitle">Sistema de Gestión de Reportes</p>
         <p className="text-center text-gray mb-4">Sistema de Gestión de ONGs</p>

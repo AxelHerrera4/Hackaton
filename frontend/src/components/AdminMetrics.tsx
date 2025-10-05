@@ -1,9 +1,4 @@
 import { useState, useEffect } from 'react'
-import { User } from '../App'
-
-interface AdminMetricsProps {
-  user: User;
-}
 
 interface MetricData {
   foundationName: string;
@@ -27,7 +22,7 @@ interface FoundationSummary {
   totalAmount: number;
 }
 
-export default function AdminMetrics({ user }: AdminMetricsProps) {
+export default function AdminMetrics() {
   const [metricsData, setMetricsData] = useState<MetricData[]>([])
   const [foundationsSummary, setFoundationsSummary] = useState<FoundationSummary[]>([])
   const [loading, setLoading] = useState(true)

@@ -41,13 +41,33 @@ const ejesHardcoded: Eje[] = [
 ];
 
 class EjesService {
+  private getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    const headers: { [key: string]: string } = {
+      'Content-Type': 'application/json'
+    };
+    
+    // Solo agregar Authorization si el token existe y no está vacío
+    if (token && token.trim() !== '' && token !== 'null' && token !== 'undefined') {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return headers;
+  }
+
   async getAllEjes(): Promise<Eje[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/eje`);
+      const response = await fetch(`${API_BASE_URL}/eje`, {
+        headers: this.getAuthHeaders()
+      });
+      
       if (!response.ok) {
         throw new Error('Backend not available');
       }
-      return response.json();
+      
+      const data = await response.json();
+      console.log('Loaded ejes from backend:', data.length);
+      return data;
     } catch (error) {
       console.log('Using hardcoded data for ejes');
       return ejesHardcoded;
@@ -56,11 +76,17 @@ class EjesService {
 
   async getEjeById(id: number): Promise<Eje[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/eje/id/${id}`);
+      const response = await fetch(`${API_BASE_URL}/eje/id/${id}`, {
+        headers: this.getAuthHeaders()
+      });
+      
       if (!response.ok) {
         throw new Error('Backend not available');
       }
-      return response.json();
+      
+      const data = await response.json();
+      console.log('Loaded eje from backend');
+      return data;
     } catch (error) {
       console.log('Using hardcoded data for eje by id');
       return ejesHardcoded.filter(eje => eje.EJES_ID === id);
@@ -71,21 +97,66 @@ class EjesService {
     try {
       const response = await fetch(`${API_BASE_URL}/eje/crear`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.getAuthHeaders(),
         body: JSON.stringify(eje),
       });
+      
       if (!response.ok) {
         throw new Error('Backend not available');
       }
-      return response.json();
+      
+      const data = await response.json();
+      console.log('Eje created via backend');
+      return data;
     } catch (error) {
       console.log('Backend not available, simulating eje creation');
       return {
         EJES_ID: Math.max(...ejesHardcoded.map(e => e.EJES_ID)) + 1,
         ...eje
       };
+    }
+  }
+
+  async updateEje(id: number, updates: Partial<Eje>): Promise<Eje> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/eje/${id}`, {
+        method: 'PUT',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(updates),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Backend not available');
+      }
+      
+      const data = await response.json();
+      console.log('Eje updated via backend');
+      return data;
+    } catch (error) {
+      console.log('Backend not available, simulating eje update');
+      const ejeIndex = ejesHardcoded.findIndex(e => e.EJES_ID === id);
+      if (ejeIndex !== -1) {
+        ejesHardcoded[ejeIndex] = { ...ejesHardcoded[ejeIndex], ...updates };
+        return ejesHardcoded[ejeIndex];
+      }
+      throw new Error('Eje no encontrado');
+    }
+  }
+
+  async deleteEje(id: number): Promise<void> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/eje/${id}`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders(),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Backend not available');
+      }
+      
+      console.log('Eje deleted via backend');
+    } catch (error) {
+      console.log('Backend not available, simulating eje deletion');
     }
   }
 }
