@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { reportsService } from '../services/reportsService';
+import { useState, useEffect } from 'react';
+import { reportesService } from '../services/reportesService';
 
 interface CreateReportProps {
   user: any;
@@ -31,8 +31,13 @@ export default function CreateReport({ user, onReportCreated }: CreateReportProp
 
   const loadProjects = async () => {
     try {
-      const response = await reportsService.getProjects();
-      setProjects(response.data || []);
+      // Como el reportesService maneja reportes de proyecto, usamos datos hardcoded para proyectos
+      const mockProjects = [
+        { id: 1, name: 'Programa Educativo Rural 2024' },
+        { id: 2, name: 'Proyecto Reforestación Urbana' },
+        { id: 3, name: 'Programa Nutrición Infantil' }
+      ];
+      setProjects(mockProjects);
     } catch (err) {
       console.error('Error loading projects:', err);
       setError('Error al cargar proyectos');
@@ -42,12 +47,17 @@ export default function CreateReport({ user, onReportCreated }: CreateReportProp
 
   const loadIndicators = async () => {
     try {
-      const response = await reportsService.getIndicators();
-      setIndicators(response.data || []);
+      // Usamos datos mock para indicadores basados en la nueva estructura
+      const mockIndicators = [
+        { id: 1, name: 'Escuelas apoyadas', description: 'Número total de escuelas que reciben apoyo', unit: 'unidades' },
+        { id: 2, name: 'Estudiantes beneficiados', description: 'Cantidad de estudiantes que participan', unit: 'personas' },
+        { id: 3, name: 'Capacitaciones realizadas', description: 'Número de capacitaciones ejecutadas', unit: 'eventos' }
+      ];
+      setIndicators(mockIndicators);
       
       // Inicializar data con los indicadores
       const initialData: Record<string, number> = {};
-      (response.data || []).forEach((indicator: any) => {
+      mockIndicators.forEach((indicator: any) => {
         initialData[indicator.name] = 0;
       });
       setFormData(prev => ({ ...prev, data: initialData }));
@@ -75,13 +85,27 @@ export default function CreateReport({ user, onReportCreated }: CreateReportProp
     setError('');
 
     try {
-      await reportsService.createReport({
-        projectId: parseInt(formData.projectId),
-        foundationId: user.foundationId,
-        periodYear: formData.periodYear,
-        periodMonth: formData.periodMonth,
-        data: formData.data,
-      });
+      // Crear un nuevo reporte usando el servicio de reportes
+      const nuevoReporte = {
+        USUARIO_ID: user.id || 1,
+        REPORTEPROYECTO_NOMBRE: `Reporte ${months[formData.periodMonth - 1]} ${formData.periodYear}`,
+        REPORTEPROYECTO_FECHAINICIO: `${formData.periodYear}-${formData.periodMonth.toString().padStart(2, '0')}-01`,
+        REPORTEPROYECTO_FECHAFIN: `${formData.periodYear}-${formData.periodMonth.toString().padStart(2, '0')}-28`,
+        REPORTEPROYECTO_PERIODOSUBIRREPORTES: 'Mensual',
+        REPORTEPROYECTO_ACCIONESDESTACADAS: Object.entries(formData.data).map(([key, value]) => `${key}: ${value}`).join(', '),
+        REPORTEPROYECTO_PRIMERHITO: 'Inicio del período',
+        REPORTEPROYECTO_SEGUNDOHITO: 'Seguimiento',
+        REPORTEPROYECTO_TERCERHITO: 'Cierre del período',
+        REPORTEPROYECTO_NOMBREHITO: `Reporte ${months[formData.periodMonth - 1]}`,
+        REPORTEPROYECTO_LUGAR: 'Nacional',
+        REPORTEPROYECTO_DESCRIPCION: `Reporte mensual de actividades - ${months[formData.periodMonth - 1]} ${formData.periodYear}`,
+        REPORTEPROYECTO_INDICADORLARGOPLAZO: 'Mejora sostenible',
+        REPORTEPROYECTO_MATERIALAUDIOVISUAL: 'Videos y fotos del período',
+        REPORTEPROYECTO_INDICADORPREVENCION: 'Monitoreo continuo',
+        REPORTEPROYECTO_ESTADO: 'En revisión'
+      };
+
+      await reportesService.createReporte(nuevoReporte);
 
       // Reset form
       setFormData({

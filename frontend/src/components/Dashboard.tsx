@@ -4,6 +4,8 @@ import CreateReport from './CreateReport'
 import ReportsList from './ReportsList'
 import PaymentsList from './PaymentsList'
 import AdminMetrics from './AdminMetrics'
+import ReportsGenerator from './ReportsGenerator'
+import KPIForm from './KPIForm'
 
 interface DashboardProps {
   user: User;
@@ -14,6 +16,11 @@ export default function Dashboard({ user }: DashboardProps) {
 
   const renderAdminDashboard = () => (
     <div>
+      <div className="fundacion-header">
+        <h1 className="fundacion-title">Fundación Favorita</h1>
+        <p className="fundacion-subtitle">Panel de Administración - Sistema de Gestión de Reportes</p>
+      </div>
+      
       <h2 className="text-2xl font-bold mb-4">Panel de Administrador</h2>
       
       <div className="nav-tabs">
@@ -34,6 +41,12 @@ export default function Dashboard({ user }: DashboardProps) {
           onClick={() => setActiveTab('reports')}
         >
           Reportes
+        </button>
+        <button 
+          className={`nav-tab ${activeTab === 'generator' ? 'active' : ''}`}
+          onClick={() => setActiveTab('generator')}
+        >
+          Generador de Reportes
         </button>
         <button 
           className={`nav-tab ${activeTab === 'payments' ? 'active' : ''}`}
@@ -99,12 +112,18 @@ export default function Dashboard({ user }: DashboardProps) {
 
       {activeTab === 'metrics' && <AdminMetrics user={user} />}
       {activeTab === 'reports' && <ReportsList user={user} />}
+      {activeTab === 'generator' && <ReportsGenerator />}
       {activeTab === 'payments' && <PaymentsList user={user} />}
     </div>
   )
 
   const renderLiderDashboard = () => (
     <div>
+      <div className="fundacion-header">
+        <h1 className="fundacion-title">Fundación Favorita</h1>
+        <p className="fundacion-subtitle">Portal de Fundaciones - Sistema de Reportes</p>
+      </div>
+      
       <h2 className="text-2xl font-bold mb-4">
         Panel de {user.foundation?.name || 'Fundación'}
       </h2>
@@ -115,6 +134,12 @@ export default function Dashboard({ user }: DashboardProps) {
           onClick={() => setActiveTab('overview')}
         >
           Resumen
+        </button>
+        <button 
+          className={`nav-tab ${activeTab === 'kpis' ? 'active' : ''}`}
+          onClick={() => setActiveTab('kpis')}
+        >
+          Registrar KPIs
         </button>
         <button 
           className={`nav-tab ${activeTab === 'create-report' ? 'active' : ''}`}
@@ -164,6 +189,7 @@ export default function Dashboard({ user }: DashboardProps) {
         </>
       )}
 
+      {activeTab === 'kpis' && <KPIForm userId={user.id} userRole={user.role} />}
       {activeTab === 'create-report' && (
         <CreateReport 
           user={user} 

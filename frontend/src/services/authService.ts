@@ -1,50 +1,114 @@
-import axios from 'axios'
-
-const API_URL = 'http://localhost:3001/api'
-
-// Configurar axios para incluir el token automáticamente
-axios.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
+// Servicio de autenticación con datos hardcoded
 
 export interface LoginResponse {
   access_token: string;
   user: {
     id: number;
     email: string;
-    fullName: string;
-    role: string;
-    foundationId?: number;
-    foundation?: {
-      id: number;
-      name: string;
-    };
+    nombre: string;
+    role: 'admin' | 'fundacion';
   };
 }
 
 export const authService = {
   async login(email: string, password: string): Promise<LoginResponse> {
-    const response = await axios.post(`${API_URL}/auth/login`, { email, password })
-    return response.data
+    console.log('Using hardcoded login validation')
+    
+    // Usuarios hardcoded para login
+    const usuariosHardcoded = [
+      {
+        id: 1,
+        email: 'admin@favorita.com',
+        password: '12345678',
+        nombre: 'Administrador Sistema',
+        role: 'admin' as const
+      },
+      {
+        id: 2,
+        email: 'fundacion@esperanza.org',
+        password: '12345678',
+        nombre: 'Fundación Esperanza',
+        role: 'fundacion' as const
+      },
+      {
+        id: 3,
+        email: 'contacto@verde.org',
+        password: '12345678',
+        nombre: 'Fundación Verde',
+        role: 'fundacion' as const
+      }
+    ];
+    
+    // Buscar usuario
+    const usuario = usuariosHardcoded.find(u => u.email === email && u.password === password);
+    
+    if (!usuario) {
+      throw new Error('Credenciales inválidas');
+    }
+    
+    // Simular token
+    const token = btoa(`${email}:${Date.now()}`);
+    
+    // Guardar datos en localStorage
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(usuario));
+    
+    return {
+      access_token: token,
+      user: {
+        id: usuario.id,
+        email: usuario.email,
+        nombre: usuario.nombre,
+        role: usuario.role
+      }
+    };
   },
 
   async getProfile() {
-    const response = await axios.get(`${API_URL}/auth/profile`)
-    return response.data
+    console.log('Using stored user data for profile')
+    
+    // Obtener datos del localStorage
+    const userData = localStorage.getItem('user');
+    if (!userData) {
+      throw new Error('No hay sesión activa');
+    }
+    
+    return JSON.parse(userData);
   },
 
   async register(userData: {
     email: string;
     password: string;
-    fullName: string;
-    role: string;
-    foundationId?: number;
+    nombre: string;
+    rol: 'admin' | 'fundacion';
   }) {
-    const response = await axios.post(`${API_URL}/auth/register`, userData)
-    return response.data
+    console.log('Using hardcoded registration')
+    
+    // Simular creación de usuario
+    const nuevoUsuario = {
+      id: Date.now(), // ID único basado en timestamp
+      email: userData.email,
+      nombre: userData.nombre,
+      role: userData.rol
+    };
+    
+    return {
+      message: 'Usuario creado exitosamente',
+      user: nuevoUsuario
+    };
+  },
+
+  logout() {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+  },
+
+  isAuthenticated(): boolean {
+    return !!localStorage.getItem('token')
+  },
+
+  getCurrentUser() {
+    const userStr = localStorage.getItem('user')
+    return userStr ? JSON.parse(userStr) : null
   }
 }

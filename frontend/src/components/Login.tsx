@@ -19,7 +19,16 @@ export default function Login({ onLogin }: LoginProps) {
 
     try {
       const response: LoginResponse = await authService.login(email, password)
-      onLogin(response.user as User, response.access_token)
+      
+      // Mapear la respuesta al tipo User esperado
+      const user: User = {
+        id: response.user.id,
+        email: response.user.email,
+        fullName: response.user.nombre,
+        role: response.user.role === 'admin' ? 'admin' : 'lider'
+      }
+      
+      onLogin(user, response.access_token)
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al iniciar sesión')
     } finally {
@@ -30,7 +39,8 @@ export default function Login({ onLogin }: LoginProps) {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1 className="login-title">La Corporación Favorita</h1>
+        <h1 className="login-title">Fundación Favorita</h1>
+        <p className="login-subtitle">Sistema de Gestión de Reportes</p>
         <p className="text-center text-gray mb-4">Sistema de Gestión de ONGs</p>
         
         <form onSubmit={handleSubmit}>
@@ -42,7 +52,7 @@ export default function Login({ onLogin }: LoginProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="admin@corporacionfavorita.com"
+              placeholder="admin@favorita.com"
             />
           </div>
 
@@ -73,8 +83,9 @@ export default function Login({ onLogin }: LoginProps) {
 
         <div className="mt-4 text-center text-sm text-gray">
           <p><strong>Credenciales de demo:</strong></p>
-          <p>Admin: admin@corporacionfavorita.com / password</p>
-          <p>Líder: lider@fundacionesperanza.org / password</p>
+          <p>Admin: admin@favorita.com / 12345678</p>
+          <p>Fundación: fundacion@esperanza.org / 12345678</p>
+          <p>Fundación: contacto@verde.org / 12345678</p>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { reportsService } from '../services/reportsService';
+import { useState, useEffect } from 'react';
+import { reportesService } from '../services/reportesService';
 
 interface ReportsListProps {
   user: any;
@@ -17,20 +17,30 @@ export default function ReportsList({ user }: ReportsListProps) {
   const loadReports = async () => {
     try {
       setLoading(true);
-      let response;
+      const reportes = await reportesService.getAllReportes();
       
-      if (user.role === 'revisor') {
-        response = filter === 'pending' 
-          ? await reportsService.getPendingReports()
-          : await reportsService.getReports();
-      } else {
-        response = await reportsService.getReports(
-          user.role === 'lider' ? user.foundationId : undefined,
-          filter === 'all' ? undefined : filter
-        );
+      // Filtrar reportes según el rol y filtro
+      let filteredReports = reportes;
+      
+      if (user.role === 'fundacion' && user.id) {
+        // Solo mostrar reportes del usuario fundación
+        filteredReports = reportes.filter(r => r.USUARIO_ID === user.id);
       }
       
-      setReports(response.data || []);
+      if (filter !== 'all') {
+        filteredReports = filteredReports.filter(r => {
+          switch (filter) {
+            case 'pending':
+              return r.REPORTEPROYECTO_ESTADO === 'En revisión' || r.REPORTEPROYECTO_ESTADO === 'Pendiente';
+            case 'approved':
+              return r.REPORTEPROYECTO_ESTADO === 'Aprobado' || r.REPORTEPROYECTO_ESTADO === 'En ejecución';
+            default:
+              return true;
+          }
+        });
+      }
+      
+      setReports(filteredReports);
     } catch (error) {
       console.error('Error al cargar reportes:', error);
       setReports([]);
@@ -41,7 +51,9 @@ export default function ReportsList({ user }: ReportsListProps) {
 
   const handleReview = async (reportId: number, approved: boolean, rejectionReason?: string) => {
     try {
-      await reportsService.reviewReport(reportId, approved, rejectionReason);
+      // Actualizar el estado del reporte
+      const nuevoEstado = approved ? 'Aprobado' : 'Rechazado';
+      await reportesService.updateReporte(reportId, { REPORTEPROYECTO_ESTADO: nuevoEstado });
       loadReports(); // Recargar la lista
       alert(`Reporte ${approved ? 'aprobado' : 'rechazado'} exitosamente`);
     } catch (error) {
@@ -51,12 +63,13 @@ export default function ReportsList({ user }: ReportsListProps) {
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
-      'pending': { class: 'badge-pending', text: 'Pendiente' },
-      'in_review': { class: 'badge-pending', text: 'En Revisión' },
-      'approved': { class: 'badge-approved', text: 'Aprobado' },
-      'rejected': { class: 'badge-rejected', text: 'Rechazado' },
-      'ready_for_payment': { class: 'badge-approved', text: 'Listo para Pago' },
-      'paid': { class: 'badge-approved', text: 'Pagado' },
+      'Pendiente': { class: 'badge-pending', text: 'Pendiente' },
+      'En revisión': { class: 'badge-pending', text: 'En Revisión' },
+      'En ejecución': { class: 'badge-approved', text: 'En Ejecución' },
+      'Aprobado': { class: 'badge-approved', text: 'Aprobado' },
+      'Rechazado': { class: 'badge-rejected', text: 'Rechazado' },
+      'En planificación': { class: 'badge-pending', text: 'En Planificación' },
+      'Completado': { class: 'badge-approved', text: 'Completado' },
     };
 
     const statusInfo = statusMap[status as keyof typeof statusMap] || { class: 'badge-pending', text: status };
@@ -81,7 +94,7 @@ export default function ReportsList({ user }: ReportsListProps) {
     <div className="card">
       <div className="card-header">
         <h3 className="card-title">
-          {user.role === 'revisor' ? 'Reportes para Revisar' : 'Mis Reportes'}
+          {user.role === 'admin' ? 'Reportes para Revisar' : 'Mis Reportes'}
         </h3>
       </div>
 
@@ -105,14 +118,6 @@ export default function ReportsList({ user }: ReportsListProps) {
         >
           Aprobados
         </button>
-        {user.role === 'revisor' && (
-          <button 
-            className={`nav-tab ${filter === 'ready_for_payment' ? 'active' : ''}`}
-            onClick={() => setFilter('ready_for_payment')}
-          >
-            Listos para Pago
-          </button>
-        )}
       </div>
 
       {reports.length === 0 ? (
@@ -122,37 +127,33 @@ export default function ReportsList({ user }: ReportsListProps) {
           <table className="table">
             <thead>
               <tr>
-                <th>Fundación</th>
                 <th>Proyecto</th>
                 <th>Período</th>
                 <th>Estado</th>
-                <th>Fecha Creación</th>
+                <th>Lugar</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {reports.map(report => (
-                <tr key={report.id}>
-                  <td>{report.foundation?.name || 'N/A'}</td>
-                  <td>{report.project?.name || 'N/A'}</td>
+                <tr key={report.REPORTEPROYECTO_ID}>
+                  <td>{report.REPORTEPROYECTO_NOMBRE || 'N/A'}</td>
                   <td>
-                    {months[report.periodMonth - 1]} {report.periodYear}
+                    {new Date(report.REPORTEPROYECTO_FECHAINICIO).toLocaleDateString()} - {new Date(report.REPORTEPROYECTO_FECHAFIN).toLocaleDateString()}
                   </td>
-                  <td>{getStatusBadge(report.status)}</td>
-                  <td>
-                    {new Date(report.createdAt).toLocaleDateString()}
-                  </td>
+                  <td>{getStatusBadge(report.REPORTEPROYECTO_ESTADO)}</td>
+                  <td>{report.REPORTEPROYECTO_LUGAR}</td>
                   <td>
                     <div className="flex gap-2">
                       <button className="btn btn-primary btn-sm">
                         Ver Detalles
                       </button>
                       
-                      {user.role === 'revisor' && report.status === 'pending' && (
+                      {user.role === 'admin' && (report.REPORTEPROYECTO_ESTADO === 'En revisión' || report.REPORTEPROYECTO_ESTADO === 'Pendiente') && (
                         <>
                           <button 
                             className="btn btn-primary btn-sm"
-                            onClick={() => handleReview(report.id, true)}
+                            onClick={() => handleReview(report.REPORTEPROYECTO_ID, true)}
                           >
                             Aprobar
                           </button>
@@ -161,7 +162,7 @@ export default function ReportsList({ user }: ReportsListProps) {
                             onClick={() => {
                               const reason = prompt('Motivo del rechazo:');
                               if (reason) {
-                                handleReview(report.id, false, reason);
+                                handleReview(report.REPORTEPROYECTO_ID, false, reason);
                               }
                             }}
                           >
@@ -170,7 +171,7 @@ export default function ReportsList({ user }: ReportsListProps) {
                         </>
                       )}
                       
-                      {user.role === 'lider' && report.status === 'pending' && (
+                      {user.role === 'fundacion' && (report.REPORTEPROYECTO_ESTADO === 'En revisión' || report.REPORTEPROYECTO_ESTADO === 'Pendiente') && (
                         <button className="btn btn-secondary btn-sm">
                           Editar
                         </button>

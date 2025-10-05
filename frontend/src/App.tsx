@@ -67,7 +67,7 @@ function App() {
       <header className="header">
         <div className="container">
           <div className="header-content">
-            <div className="logo">La Corporación Favorita</div>
+            <div className="logo">Fundación Favorita</div>
             <div className="user-info">
               <span>{user.fullName}</span>
               <span className="text-sm opacity-75">({user.role})</span>

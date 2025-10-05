@@ -7,7 +7,7 @@ interface FoundationOnboardingProps {
 export default function FoundationOnboarding({ user }: FoundationOnboardingProps) {
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">Bienvenido a La Corporación Favorita</h2>
+      <h2 className="text-2xl font-bold mb-4">Bienvenido a Fundación Favorita</h2>
       
       <div className="card">
         <div className="card-header">
