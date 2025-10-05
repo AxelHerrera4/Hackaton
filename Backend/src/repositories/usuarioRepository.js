@@ -6,11 +6,11 @@ export class UsuarioRepository {
     const nextId = rowsMax[0].nextid;
 
     const query = `
-      INSERT INTO USUARIO (USUARIO_ID, USUARIO_NOMBREONG, USUARIO_USER, USUARIO_CONTRASENA, USUARI_DESCRIPCION)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO USUARIO (USUARIO_ID, USUARIO_NOMBREONG, USUARIO_USER, USUARIO_CONTRASENA, USUARIO_ROLE, USUARI_DESCRIPCION)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
     `;
-    const values = [nextId, usuario.USUARIO_NOMBREONG, usuario.USUARIO_USER, usuario.USUARIO_CONTRASENA, usuario.USUARI_DESCRIPCION];
+    const values = [nextId, usuario.USUARIO_NOMBREONG, usuario.USUARIO_USER, usuario.USUARIO_CONTRASENA, usuario.USUARIO_ROLE || 'ong', usuario.USUARI_DESCRIPCION];
     const { rows } = await pool.query(query, values);
     return rows[0];
   }
@@ -39,9 +39,10 @@ export class UsuarioRepository {
     const campos = [];
     const values = [];
     let i = 1;
-    if (usuario.USUARIO_NOMBREONG) { campos.push(`USUARIO_NOMBREONG = $${i}`); values.push(usuario.USUARIO_NOMBREONG); i++; }
+  if (usuario.USUARIO_NOMBREONG) { campos.push(`USUARIO_NOMBREONG = $${i}`); values.push(usuario.USUARIO_NOMBREONG); i++; }
     if (usuario.USUARIO_USER) { campos.push(`USUARIO_USER = $${i}`); values.push(usuario.USUARIO_USER); i++; }
     if (usuario.USUARIO_CONTRASENA) { campos.push(`USUARIO_CONTRASENA = $${i}`); values.push(usuario.USUARIO_CONTRASENA); i++; }
+  if (usuario.USUARIO_ROLE) { campos.push(`USUARIO_ROLE = $${i}`); values.push(usuario.USUARIO_ROLE); i++; }
     if (usuario.USUARI_DESCRIPCION) { campos.push(`USUARI_DESCRIPCION = $${i}`); values.push(usuario.USUARI_DESCRIPCION); i++; }
 
     if (campos.length === 0) return false;

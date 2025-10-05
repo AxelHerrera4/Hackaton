@@ -1,13 +1,13 @@
 import express from 'express';
 import { EjesController } from '../controllers/ejeControllers.js';
-
+import { verifyToken } from "../middleware/authMiddleware.js";
 const router = express.Router();
 const controller = new EjesController();
 
 /**
  * Rutas para gestión de Ejes
  */
-
+router.use(verifyToken);
 // Crear un nuevo eje
 router.post('/crear', (req, res) => controller.crearEje(req, res));
 

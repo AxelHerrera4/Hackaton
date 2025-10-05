@@ -53,8 +53,7 @@ app.use(async (req, res, next) => {
 // Rutas
 app.use('/api', routes);
 
-// Rutas de inventario
-app.use('/eje', ejeRoutes);
+
 
 
 

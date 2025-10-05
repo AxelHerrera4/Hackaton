@@ -1,5 +1,6 @@
 import { UsuarioRepository } from '../repositories/usuarioRepository.js';
 import { Validaciones } from '../utils/validaciones.js';
+import bcrypt from 'bcrypt';
 
 const usuarioRepo = new UsuarioRepository();
 
@@ -13,9 +14,13 @@ export class UsuarioService {
       throw new Error('El nombre de la ONG solo puede contener letras');
     }
 
+    const hashed = await bcrypt.hash(data.USUARIO_CONTRASENA, 10);
+
     const newData = {
       ...data,
-      USUARIO_NOMBREONG: Validaciones.convertirAMayusculas(data.USUARIO_NOMBREONG)
+      USUARIO_NOMBREONG: Validaciones.convertirAMayusculas(data.USUARIO_NOMBREONG),
+      USUARIO_CONTRASENA: hashed,
+      USUARIO_ROLE: data.USUARIO_ROLE || 'ong'
     };
 
     return await usuarioRepo.create(newData);

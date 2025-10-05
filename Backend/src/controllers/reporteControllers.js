@@ -6,6 +6,7 @@ export class ReporteController {
   async crear(req, res) {
     try {
       const nuevo = await reporteService.createReporte(req.body);
+      // If multiple created (mensual), return array; otherwise single object
       res.status(201).json(nuevo);
     } catch (error) { res.status(400).json({ message: error.message }); }
   }

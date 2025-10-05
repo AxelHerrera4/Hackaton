@@ -1,9 +1,9 @@
 import express from 'express';
 import { UsuarioController } from '../controllers/usuarioControllers.js';
-
+import { verifyToken } from "../middleware/authMiddleware.js";
 const router = express.Router();
 const controller = new UsuarioController();
-
+router.use(verifyToken);
 router.post('/crear', (req, res) => controller.crear(req, res));
 router.get('/', (req, res) => controller.listar(req, res));
 router.get('/id/:id', (req, res) => controller.obtenerPorId(req, res));
